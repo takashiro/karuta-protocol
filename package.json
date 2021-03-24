@@ -5,7 +5,9 @@
   "main": "dist",
   "scripts": {
     "build": "tsc",
-    "test": "eslint --ext=ts,js ."
+    "test": "npm run lint && npm run jest",
+    "lint": "eslint --ext=ts,js .",
+    "jest": "jest --max-warnings=0"
   },
   "repository": {
     "type": "git",
@@ -23,11 +25,17 @@
   },
   "homepage": "https://github.com/takashiro/karuta-protocol#readme",
   "devDependencies": {
+    "@types/jest": "^26.0.21",
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
     "eslint": "^7.22.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.22.1",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.5.4",
     "typescript": "^4.2.3"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

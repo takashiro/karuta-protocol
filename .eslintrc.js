@@ -17,12 +17,30 @@ module.exports = {
 		'@typescript-eslint',
 	],
 	rules: {
+		'import/extensions': [
+			'error',
+			'ignorePackages',
+			{
+				js: 'never',
+				ts: 'never',
+			},
+		],
 		indent: [
 			'error',
 			'tab',
 		],
+		'linebreak-style': 'off',
 		'no-shadow': 'off',
 		'no-tabs': 'off',
-		'linebreak-style': 'off',
+	},
+	settings: {
+		'import/resolver': {
+			node: {
+				extensions: [
+					'.ts',
+					'.js',
+				],
+			},
+		},
 	},
 };
