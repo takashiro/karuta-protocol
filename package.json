@@ -1,0 +1,33 @@
+{
+  "name": "@karuta/protocol",
+  "version": "0.1.0",
+  "description": "Common constants and interfaces between servers and clients",
+  "main": "dist",
+  "scripts": {
+    "build": "tsc",
+    "test": "eslint --ext=ts,js ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/takashiro/karuta-protocol.git"
+  },
+  "keywords": [
+    "board",
+    "game",
+    "websocket"
+  ],
+  "author": "Kazuichi Takashiro",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/takashiro/karuta-protocol/issues"
+  },
+  "homepage": "https://github.com/takashiro/karuta-protocol#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.19.0",
+    "@typescript-eslint/parser": "^4.19.0",
+    "eslint": "^7.22.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "typescript": "^4.2.3"
+  }
+}
