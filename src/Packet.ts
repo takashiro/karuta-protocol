@@ -1,38 +1,37 @@
+import Method from './Method';
+
 export default class Packet {
-	command: number;
+	readonly method: Method;
 
-	arguments?: unknown;
+	readonly context: number;
 
-	timeout?: number;
-
-	error?: Error;
+	readonly params?: unknown;
 
 	/**
-	 * Construct a network packet with JSON string representation
-	 * @param {string} data
+	 * Construct a network packet
+	 * @param method
+	 * @param context
+	 * @param params
 	 */
-	constructor(data?: string) {
-		this.command = 0;
-		if (data) {
-			try {
-				const params = JSON.parse(data);
-				if (params instanceof Array) {
-					[this.command, this.arguments] = params;
-				}
-			} catch (error) {
-				this.error = error;
-			}
-		}
+	constructor(method: Method, context: number, params?: unknown) {
+		this.method = method;
+		this.context = context;
+		this.params = params;
 	}
 
 	/**
 	 * Convert a network packet into JSON string representation
 	 */
 	toJSON(): string {
-		const json: unknown[] = [this.command];
-		if (this.arguments !== undefined && this.arguments !== null) {
-			json.push(this.arguments);
-		}
-		return JSON.stringify(json);
+		return JSON.stringify({
+			method: this.method,
+			context: this.context,
+			params: this.params,
+		});
+	}
+
+	static parse(data: string): Packet {
+		const { method, context, params } = JSON.parse(data);
+		return new Packet(method, context, params);
 	}
 }

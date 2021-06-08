@@ -1,2 +1,3 @@
-export { default as Command } from './Command';
+export { default as Context } from './Context';
+export { default as Method } from './Method';
 export { default as Packet } from './Packet';
