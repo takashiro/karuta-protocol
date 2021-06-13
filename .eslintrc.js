@@ -31,6 +31,10 @@ module.exports = {
 		],
 		'linebreak-style': 'off',
 		'no-plusplus': 'off',
+		'no-restricted-syntax': [
+			'error',
+			'WithStatement',
+		],
 		'no-shadow': 'off',
 		'no-tabs': 'off',
 	},
