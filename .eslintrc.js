@@ -30,6 +30,7 @@ module.exports = {
 			'tab',
 		],
 		'linebreak-style': 'off',
+		'no-plusplus': 'off',
 		'no-shadow': 'off',
 		'no-tabs': 'off',
 	},

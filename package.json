@@ -6,8 +6,8 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run lint && npm run jest",
-    "lint": "eslint --ext=ts,js .",
-    "jest": "jest --max-warnings=0"
+    "lint": "eslint --ext=ts,js --max-warnings=0 .",
+    "jest": "jest"
   },
   "repository": {
     "type": "git",
