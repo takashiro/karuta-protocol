@@ -2,11 +2,12 @@ import Emitter from './Emitter';
 import Method from './Method';
 import Request from './Request';
 import Response from './Response';
+import Socket, { MessageEvent } from './Socket';
 
 type ResponseCallback = (params: unknown) => void;
 
 export default class Connection extends Emitter {
-	private socket: WebSocket;
+	private socket: Socket;
 
 	private requestTimeout?: number;
 
@@ -14,10 +15,10 @@ export default class Connection extends Emitter {
 
 	private pool = new Map<number, ResponseCallback>();
 
-	constructor(socket: WebSocket) {
+	constructor(socket: Socket) {
 		super();
 		this.socket = socket;
-		this.socket.onmessage = (e) => this.handleMessage(e);
+		this.socket.addEventListener('message', (e) => this.handleMessage(e));
 	}
 
 	/**
@@ -25,7 +26,7 @@ export default class Connection extends Emitter {
 	 */
 	close(): Promise<void> {
 		const closed = new Promise<void>((resolve) => {
-			this.socket.onclose = () => resolve();
+			this.socket.addEventListener('close', () => resolve());
 		});
 		this.socket.close();
 		return closed;

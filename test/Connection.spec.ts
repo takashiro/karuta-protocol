@@ -3,16 +3,18 @@ import Method from '../src/Method';
 
 const close = jest.fn();
 const send = jest.fn();
+const addEventListener = jest.fn();
 const ws = {
 	send,
 	close,
 	readyState: 3,
+	addEventListener,
 } as unknown as WebSocket;
 const con = new Connection(ws);
 
 function mockRequest(id: number, method: Method, context: number, params?: unknown): void {
-	const onmessage = Reflect.get(ws, 'onmessage');
-	onmessage({
+	const listener = addEventListener.mock.calls[0][1];
+	listener({
 		data: JSON.stringify({
 			id,
 			method,
@@ -24,8 +26,8 @@ function mockRequest(id: number, method: Method, context: number, params?: unkno
 
 function mockResponse(params?: unknown): void {
 	const id = Reflect.get(con, 'requestId') - 1;
-	const onmessage = Reflect.get(ws, 'onmessage');
-	onmessage({
+	const listener = addEventListener.mock.calls[0][1];
+	listener({
 		data: JSON.stringify({
 			id,
 			params,
@@ -116,7 +118,7 @@ describe('timeout', () => {
 });
 
 describe('message', () => {
-	const onmessage = Reflect.get(ws, 'onmessage');
+	const onmessage = addEventListener.mock.calls[0][1];
 	const emit = jest.spyOn(con, 'emit').mockReturnValue();
 
 	afterEach(() => {
@@ -165,7 +167,7 @@ describe('state', () => {
 		await Promise.all([
 			con.close(),
 			(() => {
-				const onclose = Reflect.get(ws, 'onclose');
+				const onclose = addEventListener.mock.calls[1][1];
 				setTimeout(onclose, 0);
 			})(),
 		]);
