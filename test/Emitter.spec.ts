@@ -15,19 +15,19 @@ it('handles a GET request', async () => {
 	get.mockClear();
 });
 
-it('rejects non-existing contexts', () => {
-	expect(() => e.emit(Method.Get, 999)).toThrowError('No such a context');
+it('rejects non-existing contexts', async () => {
+	await expect(() => e.emit(Method.Get, 999)).rejects.toThrowError('No such a context');
 });
 
-it('rejects unsupported methods', () => {
-	expect(() => e.emit(Method.Post, context)).toThrowError('Method not supported');
+it('rejects unsupported methods', async () => {
+	await expect(() => e.emit(Method.Post, context)).rejects.toThrowError('Method not supported');
 });
 
-it('rejects invalid methods', () => {
-	expect(() => e.emit(888 as Method, context)).toThrowError('Invalid method');
+it('rejects invalid methods', async () => {
+	await expect(() => e.emit(888 as Method, context)).rejects.toThrowError('Invalid method');
 });
 
-it('unregiters a listener', () => {
+it('unregiters a listener', async () => {
 	e.off(context);
-	expect(() => e.emit(Method.Get, context)).toThrowError('No such a context');
+	await expect(() => e.emit(Method.Get, context)).rejects.toThrowError('No such a context');
 });

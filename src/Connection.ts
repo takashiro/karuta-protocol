@@ -165,22 +165,28 @@ export default class Connection extends Emitter {
 	private handleMessage(e: MessageEvent): void {
 		try {
 			const packet = JSON.parse(e.data);
-			if (!packet.id) {
-				return;
-			}
 			if (packet.context && packet.method) {
-				this.handleRequest(packet.id, packet.method, packet.context, packet.params);
-				return;
+				if (packet.id) {
+					this.handleRequest(packet.id, packet.method, packet.context, packet.params);
+				} else {
+					this.handleNotification(packet.method, packet.context, packet.params);
+				}
+			} else if (packet.id) {
+				this.handleResponse(packet.id, packet.params);
 			}
-			this.handleResponse(packet.id, packet.params);
 		} catch (error) {
 			// Ignore
 		}
 	}
 
-	private handleRequest(id: number, method: Method, context: number, params?: unknown): void {
+	private async handleRequest(
+		id: number,
+		method: Method,
+		context: number,
+		params?: unknown,
+	): Promise<void> {
 		try {
-			const res = this.emit(method, context, params);
+			const res = await this.emit(method, context, params);
 			this.respond(id, res);
 		} catch (error) {
 			this.respond(id, {
@@ -197,5 +203,17 @@ export default class Connection extends Emitter {
 
 		this.pool.delete(id);
 		setTimeout(callback, 0, params);
+	}
+
+	private async handleNotification(
+		method: Method,
+		context: number,
+		params?: unknown,
+	): Promise<void> {
+		try {
+			await this.emit(method, context, params);
+		} catch (error) {
+			// Ignore
+		}
 	}
 }

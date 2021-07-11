@@ -35,6 +35,12 @@ function mockResponse(params?: unknown): void {
 	});
 }
 
+function idle(msecs: number): Promise<void> {
+	return new Promise((resolve) => {
+		setTimeout(resolve, msecs);
+	});
+}
+
 afterEach(() => {
 	send.mockClear();
 });
@@ -119,7 +125,7 @@ describe('timeout', () => {
 
 describe('message', () => {
 	const onmessage = addEventListener.mock.calls[0][1];
-	const emit = jest.spyOn(con, 'emit').mockReturnValue(123);
+	const emit = jest.spyOn(con, 'emit').mockResolvedValue(123);
 
 	afterEach(() => {
 		emit.mockClear();
@@ -147,15 +153,17 @@ describe('message', () => {
 		mockResponse(333);
 	});
 
-	it('responds to a request', () => {
-		emit.mockReturnValue(8);
+	it('responds to a request', async () => {
+		emit.mockResolvedValue(8);
 		mockRequest(567, Method.Post, 1);
+		await idle(0);
 		expect(send).toBeCalledWith('{"id":567,"params":8}');
 	});
 
-	it('responds to a request with objects', () => {
-		emit.mockReturnValue({ q: 22 });
+	it('responds to a request with objects', async () => {
+		emit.mockResolvedValue({ q: 22 });
 		mockRequest(9, Method.Post, 1);
+		await idle(0);
 		expect(send).toBeCalledWith('{"id":9,"params":{"q":22}}');
 	});
 
@@ -167,6 +175,13 @@ describe('message', () => {
 	it('sends a notification with parameters', () => {
 		con.notify(Method.Post, 1, 2);
 		expect(send).toBeCalledWith('{"id":0,"method":3,"context":1,"params":2}');
+	});
+
+	it('handles a notification', async () => {
+		emit.mockResolvedValue(554);
+		mockRequest(0, Method.Delete, 455, 456);
+		await idle(0);
+		expect(emit).toBeCalledWith(Method.Delete, 455, 456);
 	});
 });
 
