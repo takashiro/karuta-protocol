@@ -119,7 +119,7 @@ describe('timeout', () => {
 
 describe('message', () => {
 	const onmessage = addEventListener.mock.calls[0][1];
-	const emit = jest.spyOn(con, 'emit').mockReturnValue();
+	const emit = jest.spyOn(con, 'emit').mockReturnValue(123);
 
 	afterEach(() => {
 		emit.mockClear();
@@ -140,7 +140,7 @@ describe('message', () => {
 			throw new Error('unknown');
 		});
 		mockRequest(567, Method.Post, 1);
-		expect(send).toBeCalledWith('{"id":567,"params":"Error: unknown"}');
+		expect(send).toBeCalledWith('{"id":567,"params":{"error":"Error: unknown"}}');
 	});
 
 	it('discards invalid response', () => {
@@ -148,13 +148,25 @@ describe('message', () => {
 	});
 
 	it('responds to a request', () => {
-		con.respond(8);
-		expect(send).toBeCalledWith('{"id":8}');
+		emit.mockReturnValue(8);
+		mockRequest(567, Method.Post, 1);
+		expect(send).toBeCalledWith('{"id":567,"params":8}');
 	});
 
-	it('responds to a request with parameters', () => {
-		con.respond(9, { q: 22 });
+	it('responds to a request with objects', () => {
+		emit.mockReturnValue({ q: 22 });
+		mockRequest(9, Method.Post, 1);
 		expect(send).toBeCalledWith('{"id":9,"params":{"q":22}}');
+	});
+
+	it('sends a notification', () => {
+		con.notify(Method.Post, 1);
+		expect(send).toBeCalledWith('{"id":0,"method":3,"context":1}');
+	});
+
+	it('sends a notification with parameters', () => {
+		con.notify(Method.Post, 1, 2);
+		expect(send).toBeCalledWith('{"id":0,"method":3,"context":1,"params":2}');
 	});
 });
 

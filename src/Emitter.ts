@@ -29,7 +29,7 @@ export default class Emitter {
 		this.listeners.delete(context);
 	}
 
-	emit(method: Method, context: number, params?: unknown): void {
+	emit(method: Method, context: number, params?: unknown): unknown {
 		const listener = this.listeners.get(context);
 		if (!listener) {
 			throw new Error('No such a context');
@@ -45,6 +45,6 @@ export default class Emitter {
 			throw new Error('Method not supported');
 		}
 
-		callback.call(listener, params);
+		return callback.call(listener, params);
 	}
 }

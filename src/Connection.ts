@@ -109,7 +109,8 @@ export default class Connection extends Emitter {
 	}
 
 	/**
-	 * Send a request.
+	 * Send a request
+	 * @param method
 	 * @param context
 	 * @param params
 	 */
@@ -139,11 +140,24 @@ export default class Connection extends Emitter {
 	}
 
 	/**
+	 * Send a notification.
+	 * @param method
+	 * @param context
+	 * @param params
+	 */
+	notify(method: Method, context: number, params?: unknown): void {
+		const req = new Request(0, method, context, {
+			params,
+		});
+		this.socket.send(req.toString());
+	}
+
+	/**
 	 * Send a response.
 	 * @param id
 	 * @param params
 	 */
-	respond(id: number, params?: unknown): void {
+	private respond(id: number, params?: unknown): void {
 		const res = new Response(id, params);
 		this.socket.send(res.toString());
 	}
@@ -166,9 +180,12 @@ export default class Connection extends Emitter {
 
 	private handleRequest(id: number, method: Method, context: number, params?: unknown): void {
 		try {
-			this.emit(method, context, params);
+			const res = this.emit(method, context, params);
+			this.respond(id, res);
 		} catch (error) {
-			this.respond(id, String(error));
+			this.respond(id, {
+				error: String(error),
+			});
 		}
 	}
 
