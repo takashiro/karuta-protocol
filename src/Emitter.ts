@@ -29,6 +29,13 @@ export default class Emitter {
 		this.listeners.delete(context);
 	}
 
+	/**
+	 * @return All existing listeners.
+	 */
+	getListeners(): ContextListener[] {
+		return [...this.listeners.values()];
+	}
+
 	async emit(method: Method, context: number, params?: unknown): Promise<unknown> {
 		const listener = this.listeners.get(context);
 		if (!listener) {

@@ -23,6 +23,12 @@ it('rejects unsupported methods', async () => {
 	await expect(() => e.emit(Method.Post, context)).rejects.toThrowError('Method not supported');
 });
 
+it('returns all listeners', () => {
+	const listeners = e.getListeners();
+	expect(listeners).toHaveLength(1);
+	expect(listeners[0].context).toBe(context);
+});
+
 it('rejects invalid methods', async () => {
 	await expect(() => e.emit(888 as Method, context)).rejects.toThrowError('Invalid method');
 });
