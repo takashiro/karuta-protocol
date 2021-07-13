@@ -26,7 +26,7 @@ export default class Connection extends Emitter {
 	 */
 	close(): Promise<void> {
 		const closed = new Promise<void>((resolve) => {
-			this.socket.addEventListener('close', () => resolve());
+			this.socket.addEventListener('close', () => resolve(), { once: true });
 		});
 		this.socket.close();
 		return closed;
