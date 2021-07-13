@@ -1,5 +1,6 @@
 import Connection from '../src/Connection';
 import Method from '../src/Method';
+import { SocketState } from '../src/Socket';
 
 const close = jest.fn();
 const send = jest.fn();
@@ -7,9 +8,13 @@ const addEventListener = jest.fn();
 const ws = {
 	send,
 	close,
-	readyState: 3,
 	addEventListener,
 } as unknown as WebSocket;
+Object.defineProperty(ws, 'readyState', {
+	get() { return 3; },
+	configurable: true,
+});
+const readyState = jest.spyOn(ws, 'readyState', 'get');
 const con = new Connection(ws);
 
 function mockRequest(id: number, method: Method, context: number, params?: unknown): void {
@@ -186,11 +191,16 @@ describe('message', () => {
 });
 
 describe('state', () => {
+	afterEach(() => {
+		readyState.mockClear();
+	});
+
 	it('gets ready state', () => {
 		expect(con.getReadyState()).toBe(3);
 	});
 
 	it('closes the connection', async () => {
+		readyState.mockReturnValue(SocketState.CLOSING);
 		await Promise.all([
 			con.close(),
 			(() => {
@@ -199,5 +209,29 @@ describe('state', () => {
 			})(),
 		]);
 		expect(close).toBeCalledTimes(1);
+	});
+
+	it('closes again', async () => {
+		readyState.mockReturnValue(SocketState.CLOSED);
+		await con.close();
+		expect(readyState).toBeCalled();
+	});
+
+	it('opens an open socket', async () => {
+		readyState.mockReturnValue(SocketState.OPEN);
+		await con.open();
+		expect(readyState).toBeCalled();
+	});
+
+	it('opens an opening socket', async () => {
+		readyState.mockReturnValue(SocketState.CONNECTING);
+		await Promise.all([
+			con.open(),
+			(() => {
+				const onopen = addEventListener.mock.calls[2][1];
+				setTimeout(onopen, 0);
+			})(),
+		]);
+		expect(readyState).toBeCalled();
 	});
 });

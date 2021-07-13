@@ -2,7 +2,7 @@ import Emitter from './Emitter';
 import Method from './Method';
 import Request from './Request';
 import Response from './Response';
-import Socket, { MessageEvent } from './Socket';
+import Socket, { MessageEvent, SocketState } from './Socket';
 
 type ResponseCallback = (params: unknown) => void;
 
@@ -22,9 +22,25 @@ export default class Connection extends Emitter {
 	}
 
 	/**
+	 * Wait until the connection is opened.
+	 */
+	open(): Promise<void> {
+		if (this.socket.readyState === SocketState.OPEN) {
+			return Promise.resolve();
+		}
+		return new Promise((resolve) => {
+			this.socket.addEventListener('open', resolve, { once: true });
+		});
+	}
+
+	/**
 	 * Close the connection.
 	 */
 	close(): Promise<void> {
+		if (this.socket.readyState === SocketState.CLOSED) {
+			return Promise.resolve();
+		}
+
 		const closed = new Promise<void>((resolve) => {
 			this.socket.addEventListener('close', () => resolve(), { once: true });
 		});

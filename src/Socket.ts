@@ -21,4 +21,11 @@ interface Socket {
 	readyState: number;
 }
 
+export const enum SocketState {
+	CONNECTING,
+	OPEN,
+	CLOSING,
+	CLOSED,
+}
+
 export default Socket;
