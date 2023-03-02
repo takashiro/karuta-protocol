@@ -1,5 +1,5 @@
 export interface MessageEvent {
-	data: string;
+	data: string | Buffer | ArrayBuffer | Buffer[];
 }
 
 export interface CloseEvent {
