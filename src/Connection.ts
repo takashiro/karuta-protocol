@@ -25,7 +25,7 @@ export default class Connection extends Emitter {
 	 * Wait until the connection is opened.
 	 */
 	open(): Promise<void> {
-		if (this.socket.readyState === SocketState.OPEN) {
+		if (this.getReadyState() === SocketState.OPEN) {
 			return Promise.resolve();
 		}
 		return new Promise((resolve) => {
@@ -37,7 +37,7 @@ export default class Connection extends Emitter {
 	 * Close the connection.
 	 */
 	close(): Promise<void> {
-		if (this.socket.readyState === SocketState.CLOSED) {
+		if (this.getReadyState() === SocketState.CLOSED) {
 			return Promise.resolve();
 		}
 
@@ -179,8 +179,13 @@ export default class Connection extends Emitter {
 	}
 
 	private handleMessage(e: MessageEvent): void {
+		const { data } = e;
+		if (typeof data !== 'string') {
+			return;
+		}
+
 		try {
-			const packet = JSON.parse(e.data);
+			const packet = JSON.parse(data);
 			if (packet.context && packet.method) {
 				if (packet.id) {
 					this.handleRequest(packet.id, packet.method, packet.context, packet.params);

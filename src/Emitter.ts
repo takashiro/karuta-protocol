@@ -1,7 +1,9 @@
 import ContextListener from './ContextListener';
 import Method from './Method';
 
-const methodMap = new Map<Method, string>([
+type MethodName = 'get' | 'post' | 'head' | 'put' | 'patch' | 'delete';
+
+const methodMap = new Map<Method, MethodName>([
 	[Method.Get, 'get'],
 	[Method.Post, 'post'],
 	[Method.Head, 'head'],
@@ -53,5 +55,14 @@ export default class Emitter {
 		}
 
 		return callback.call(listener, params);
+	}
+
+	waitFor(context: number, method: MethodName): Promise<unknown> {
+		return new Promise((resolve) => {
+			this.on({
+				context,
+				[method]: resolve,
+			});
+		});
 	}
 }
