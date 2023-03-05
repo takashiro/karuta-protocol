@@ -2,6 +2,7 @@ import Emitter from './Emitter';
 import Method from './Method';
 import Request from './Request';
 import Response from './Response';
+import Notification from './Notification';
 import Socket, { MessageEvent, SocketState } from './Socket';
 
 type ResponseCallback = (params: unknown) => void;
@@ -162,7 +163,7 @@ export default class Connection extends Emitter {
 	 * @param params
 	 */
 	notify(method: Method, context: number, params?: unknown): void {
-		const req = new Request(0, method, context, {
+		const req = new Notification(method, context, {
 			params,
 		});
 		this.socket.send(req.toString());
@@ -185,14 +186,14 @@ export default class Connection extends Emitter {
 		}
 
 		try {
-			const packet = JSON.parse(data);
-			if (packet.context && packet.method) {
-				if (packet.id) {
+			const packet = JSON.parse(data) as Partial<Request | Response | Notification>;
+			if ('context' in packet) {
+				if ('id' in packet) {
 					this.handleRequest(packet.id, packet.method, packet.context, packet.params);
 				} else {
 					this.handleNotification(packet.method, packet.context, packet.params);
 				}
-			} else if (packet.id) {
+			} else if ('id' in packet) {
 				this.handleResponse(packet.id, packet.params);
 			}
 		} catch (error) {
@@ -201,11 +202,15 @@ export default class Connection extends Emitter {
 	}
 
 	private async handleRequest(
-		id: number,
-		method: Method,
-		context: number,
+		id?: number,
+		method?: Method,
+		context?: number,
 		params?: unknown,
 	): Promise<void> {
+		if (!id || !method || !context) {
+			return;
+		}
+
 		try {
 			const res = await this.emit(method, context, params);
 			this.respond(id, res);
@@ -216,7 +221,10 @@ export default class Connection extends Emitter {
 		}
 	}
 
-	private handleResponse(id: number, params?: unknown): void {
+	private handleResponse(id?: number, params?: unknown): void {
+		if (!id) {
+			return;
+		}
 		const callback = this.pool.get(id);
 		if (!callback) {
 			return;
@@ -227,10 +235,13 @@ export default class Connection extends Emitter {
 	}
 
 	private async handleNotification(
-		method: Method,
-		context: number,
+		method?: Method,
+		context?: number,
 		params?: unknown,
 	): Promise<void> {
+		if (!method || !context) {
+			return;
+		}
 		try {
 			await this.emit(method, context, params);
 		} catch (error) {

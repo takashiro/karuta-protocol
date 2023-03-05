@@ -127,6 +127,9 @@ describe('Handle errors', () => {
 
 	it('ignores invalid message', async () => {
 		remoteSocket.send(Buffer.alloc(8));
+		localSocket.send(JSON.stringify({ context: 0, id: 0 }));
+		localSocket.send(JSON.stringify({ context: 0 }));
+		localSocket.send(JSON.stringify({ id: 0 }));
 	});
 
 	it('replies with error', async () => {
